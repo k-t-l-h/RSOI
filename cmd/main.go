@@ -18,8 +18,8 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/person/{personID}", pd.Read).Methods("GET")
-	r.HandleFunc("/person", pd.ReadAll).Methods("GET")
+	r.HandleFunc("/person/{personID:[0-9]+}", pd.Read).Methods("GET")
+	r.HandleFunc("/persons", pd.ReadAll).Methods("GET")
 	r.HandleFunc("/person", pd.Create).Methods("POST")
 	r.HandleFunc("/person/{personID}", pd.Update).Methods("PATCH")
 	r.HandleFunc("/person/{personID}", pd.Delete).Methods("DELETE")

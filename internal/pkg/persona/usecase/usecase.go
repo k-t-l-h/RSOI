@@ -13,19 +13,19 @@ func NewPUsecase(repo persona.IRepository) *PUsecase {
 	return &PUsecase{repo: repo}
 }
 
-func (us *PUsecase) Create(persona *models.Persona) (uint, error) {
+func (us *PUsecase) Create(persona *models.PersonaRequest) (uint, error) {
 	return 0, nil
 }
 
-func (us *PUsecase) Read(id uint) (*models.Persona, error) {
+func (us *PUsecase) Read(id uint) (*models.PersonaResponse, error) {
 	return nil, nil
 }
 
-func (us *PUsecase) ReadAll() ([]*models.Persona, error) {
+func (us *PUsecase) ReadAll() ([]*models.PersonaResponse, error) {
 	return nil, nil
 }
 
-func (us *PUsecase) Update(id uint, persona *models.Persona) error {
+func (us *PUsecase) Update(id uint, persona *models.PersonaRequest) error {
 	return nil
 }
 

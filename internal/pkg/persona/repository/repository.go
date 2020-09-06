@@ -10,19 +10,19 @@ func NewPRepository() *PRepository {
 	return &PRepository{}
 }
 
-func (pr *PRepository) Insert(persona *models.Persona) (uint, error) {
+func (pr *PRepository) Insert(persona *models.PersonaRequest) (uint, error) {
 	return 0, nil
 }
 
-func (pr *PRepository) Select(id uint) (*models.Persona, error) {
+func (pr *PRepository) Select(id uint) (*models.PersonaResponse, error) {
 	return nil, nil
 }
 
-func (pr *PRepository) SelectAll() ([]*models.Persona, error) {
+func (pr *PRepository) SelectAll() ([]*models.PersonaResponse, error) {
 	return nil, nil
 }
 
-func (pr *PRepository) Update(id uint, persona *models.Persona) error {
+func (pr *PRepository) Update(id uint, persona *models.PersonaRequest) error {
 	return nil
 }
 
