@@ -8,6 +8,7 @@ import (
 	"github.com/mailru/easyjson"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type PHandler struct {
@@ -34,55 +35,81 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	id, err := h.personaUsecase.Create(person)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		//TODO: добавить обработку id
+	id, code := h.personaUsecase.Create(person)
+
+	switch code {
+	case models.OKEY:
 		log.Print(id)
 		w.WriteHeader(http.StatusCreated)
+	case models.NOTFOUND:
+		w.WriteHeader(http.StatusNotFound)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 
 func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
-	id := v["personID"]
-	_, err := h.personaUsecase.Read(id)
+	ids := v["personID"]
+	id, _ := strconv.Atoi(ids)
+	_, code := h.personaUsecase.Read(uint(id))
 
-	if err != nil {
+
+	switch code {
+	case models.OKEY:
+		log.Print(id)
+		w.WriteHeader(http.StatusCreated)
+	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
-	} else {
-		w.WriteHeader(http.StatusOK)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 }
 
 func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+
+	_, code := h.personaUsecase.ReadAll()
+	switch code {
+	case models.OKEY:
+		w.WriteHeader(http.StatusCreated)
+	case models.NOTFOUND:
+		w.WriteHeader(http.StatusNotFound)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	v := mux.Vars(r)
-	id := v["personID"]
-	err := h.personaUsecase.Update(id, nil)
+	ids := v["personID"]
+	id, _ := strconv.Atoi(ids)
+	code := h.personaUsecase.Update(uint(id), nil)
 
-	if err != nil {
+	switch code {
+	case models.OKEY:
+		w.WriteHeader(http.StatusCreated)
+	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
-	} else {
-		w.WriteHeader(http.StatusOK)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
 	}
 
 }
 
 func (h *PHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
-	id := v["personID"]
-	err := h.personaUsecase.Delete(id)
+	ids := v["personID"]
+	id, _ := strconv.Atoi(ids)
+	code := h.personaUsecase.Delete(uint(id))
 
-	if err != nil {
+	switch code {
+	case models.OKEY:
+		w.WriteHeader(http.StatusCreated)
+	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
-	} else {
-		w.WriteHeader(http.StatusOK)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }
