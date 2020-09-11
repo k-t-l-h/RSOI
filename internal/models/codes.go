@@ -1,7 +1,7 @@
 package models
 
 const (
-	OKEY  = iota
+	OKEY = iota
 	NOTFOUND
 	BADREQUEST
 )

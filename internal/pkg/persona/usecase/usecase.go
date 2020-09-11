@@ -30,5 +30,5 @@ func (us *PUsecase) Update(id uint, persona *models.PersonaRequest) int {
 }
 
 func (us *PUsecase) Delete(id uint) int {
-	return models.OKEY
+	return us.repo.Delete(id)
 }

@@ -4,19 +4,21 @@ import (
 	"RSOI/internal/models"
 	"context"
 	"github.com/jackc/pgx/pgxpool"
+	"log"
 )
 
 type PRepository struct {
 	pool pgxpool.Pool
 }
 
-func NewPRepository() *PRepository {
-	return &PRepository{}
+func NewPRepository(pl pgxpool.Pool) *PRepository {
+	return &PRepository{pool: pl}
 }
 
 func (pr *PRepository) Insert(persona *models.PersonaRequest) (uint, int) {
-	res := pr.pool.QueryRow(context.Background(), CREATEPERSONA)
-	err := res.Scan(persona.ID)
+	res := pr.pool.QueryRow(context.Background(), CREATEPERSONA,
+		persona.Name, persona.Age, persona.Address, persona.Work)
+	err := res.Scan(&persona.ID)
 	if err != nil {
 		return 0, models.NOTFOUND
 	} else {
@@ -25,11 +27,13 @@ func (pr *PRepository) Insert(persona *models.PersonaRequest) (uint, int) {
 }
 
 func (pr *PRepository) Select(id uint) (*models.PersonaResponse, int) {
-	res := pr.pool.QueryRow(context.Background(), READPERSONA)
-	persona := models.PersonaResponse{ID:id}
 
-	err := res.Scan(persona.Name, persona.Address, persona.Age, persona.Work)
+	persona := models.PersonaResponse{ID: id}
+	res := pr.pool.QueryRow(context.Background(), READPERSONA, persona.ID)
+
+	err := res.Scan(&persona.Name, &persona.Age, &persona.Address, &persona.Work)
 	if err != nil {
+		log.Print(err)
 		return &persona, models.NOTFOUND
 	} else {
 		return &persona, models.OKEY
@@ -42,8 +46,9 @@ func (pr *PRepository) SelectAll() ([]*models.PersonaResponse, int) {
 
 	for tag.Next() {
 		persona := models.PersonaResponse{}
-		err = tag.Scan(persona.Name, persona.Address, persona.Age, persona.Work)
+		err = tag.Scan(&persona.ID, &persona.Name, &persona.Age, &persona.Address, &persona.Work)
 		if err != nil {
+			log.Print(err)
 			break
 		}
 		personas = append(personas, &persona)
@@ -57,7 +62,9 @@ func (pr *PRepository) SelectAll() ([]*models.PersonaResponse, int) {
 }
 
 func (pr *PRepository) Update(id uint, persona *models.PersonaRequest) int {
-	tag, err := pr.pool.Exec(context.Background(), UPDATEPERSONA, id)
+	persona.ID = id
+	tag, err := pr.pool.Exec(context.Background(), UPDATEPERSONA,
+		persona.Name, persona.Age, persona.Address, persona.Work, persona.ID)
 	if err != nil {
 		return models.BADREQUEST
 	}
@@ -67,11 +74,11 @@ func (pr *PRepository) Update(id uint, persona *models.PersonaRequest) int {
 
 	return models.OKEY
 
-
 }
 
 func (pr *PRepository) Delete(id uint) int {
-	tag, err := pr.pool.Exec(context.Background(), UPDATEPERSONA, id)
+	tag, err := pr.pool.Exec(context.Background(), DELETEPERSONA, id)
+
 	if err != nil {
 		return models.BADREQUEST
 	}

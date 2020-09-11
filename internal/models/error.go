@@ -1,7 +1,7 @@
 package models
 
 type Error struct {
-	Message string
-	ErrorStruct struct{
+	Message     string
+	ErrorStruct struct {
 	}
 }

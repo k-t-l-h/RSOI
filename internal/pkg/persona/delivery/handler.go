@@ -3,7 +3,7 @@ package delivery
 import (
 	"RSOI/internal/models"
 	"RSOI/internal/pkg/persona"
-	"RSOI/src/github.com/go-playground/validator"
+	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
 	"github.com/mailru/easyjson"
 	"log"
@@ -54,11 +54,10 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(ids)
 	_, code := h.personaUsecase.Read(uint(id))
 
-
 	switch code {
 	case models.OKEY:
 		log.Print(id)
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
 	default:
@@ -72,7 +71,7 @@ func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 	_, code := h.personaUsecase.ReadAll()
 	switch code {
 	case models.OKEY:
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
 	default:
@@ -85,7 +84,11 @@ func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
 	id, _ := strconv.Atoi(ids)
-	code := h.personaUsecase.Update(uint(id), nil)
+
+	persona := &models.PersonaRequest{}
+	easyjson.UnmarshalFromReader(r.Body, persona)
+
+	code := h.personaUsecase.Update(uint(id), persona)
 
 	switch code {
 	case models.OKEY:
