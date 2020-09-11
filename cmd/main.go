@@ -4,15 +4,31 @@ import (
 	"RSOI/internal/pkg/persona/delivery"
 	"RSOI/internal/pkg/persona/repository"
 	"RSOI/internal/pkg/persona/usecase"
+	"context"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/pgxpool"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
-func main() {
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
-	pr := repository.NewPRepository()
+func main() {
+	connection, _ := os.LookupEnv("dbData")
+
+	conn, err := pgxpool.Connect(context.Background(), connection)
+	if err != nil {
+		log.Fatal("database error")
+	}
+
+	pr := repository.NewPRepository(*conn)
 	pu := usecase.NewPUsecase(pr)
 	pd := delivery.NewPHandler(pu)
 
@@ -26,7 +42,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:8000",
+		Addr:         "127.0.0.1:5000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
