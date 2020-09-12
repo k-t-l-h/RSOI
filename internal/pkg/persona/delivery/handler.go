@@ -52,12 +52,11 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
 	id, _ := strconv.Atoi(ids)
-	_, code := h.personaUsecase.Read(uint(id))
+	p, code := h.personaUsecase.Read(uint(id))
 
 	switch code {
 	case models.OKEY:
-		log.Print(id)
-		w.WriteHeader(http.StatusOK)
+		easyjson.MarshalToHTTPResponseWriter(p, w)
 	case models.NOTFOUND:
 		w.WriteHeader(http.StatusNotFound)
 	default:
