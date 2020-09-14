@@ -3,7 +3,7 @@ package repository
 import (
 	"RSOI/internal/models"
 	"context"
-	"github.com/jackc/pgx/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 )
 

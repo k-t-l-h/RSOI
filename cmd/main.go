@@ -7,7 +7,7 @@ import (
 	"RSOI/internal/pkg/persona/usecase"
 	"context"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
