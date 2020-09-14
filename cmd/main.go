@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RSOI/internal/pkg/middleware"
 	"RSOI/internal/pkg/persona/delivery"
 	"RSOI/internal/pkg/persona/repository"
 	"RSOI/internal/pkg/persona/usecase"
@@ -21,11 +22,15 @@ func init() {
 }
 
 func main() {
-	connection, _ := os.LookupEnv("dbData")
+
+	connection, state := os.LookupEnv("dbData")
+	if !state {
+		log.Fatal("connection string was not found")
+	}
 
 	conn, err := pgxpool.Connect(context.Background(), connection)
 	if err != nil {
-		log.Fatal("database error")
+		log.Fatal("database connection not established")
 	}
 
 	pr := repository.NewPRepository(*conn)
@@ -33,8 +38,9 @@ func main() {
 	pd := delivery.NewPHandler(pu)
 
 	r := mux.NewRouter()
+	r.Use(middleware.InternalServerError)
 
-	r.HandleFunc("/person/{personID:[0-9]+}", pd.Read).Methods("GET")
+	r.HandleFunc("/person/{personID}", pd.Read).Methods("GET")
 	r.HandleFunc("/persons", pd.ReadAll).Methods("GET")
 	r.HandleFunc("/person", pd.Create).Methods("POST")
 	r.HandleFunc("/person/{personID}", pd.Update).Methods("PATCH")
@@ -42,11 +48,13 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:5000",
+		Addr:         ":5000",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
+	log.Print("Server running at ", srv.Addr)
 	log.Fatal(srv.ListenAndServe())
 
 }
+
