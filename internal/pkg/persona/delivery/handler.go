@@ -3,10 +3,10 @@ package delivery
 import (
 	"RSOI/internal/models"
 	"RSOI/internal/pkg/persona"
-	"github.com/go-playground/validator"
+	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mailru/easyjson"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -24,24 +24,30 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 	person := &models.PersonaRequest{}
 	err := easyjson.UnmarshalFromReader(r.Body, person)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-	}
 
-	v := validator.New()
-	errs := v.Struct(person)
-	if errs != nil {
-		for _, e := range errs.(validator.ValidationErrors) {
-			log.Println(e)
+		answer := models.ErrorValidation{
+			Message: "Incorrect json",
 		}
+		jsn, _ := json.Marshal(answer)
+
+		w.Write(jsn)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	id, code := h.personaUsecase.Create(person)
 
 	switch code {
 	case models.OKEY:
-		log.Print(id)
+		w.Header().Set("Location",
+			fmt.Sprintf("https://rsoi-person-service.herokuapp.com/persons/%d", id))
 		w.WriteHeader(http.StatusCreated)
 	case models.NOTFOUND:
+		answer := models.Error{
+			Message: "Person not found",
+		}
+		jsn, _ := json.Marshal(answer)
+		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -51,13 +57,29 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
-	id, _ := strconv.Atoi(ids)
+	id, err := strconv.Atoi(ids)
+	if err != nil {
+		answer := models.ErrorValidation{
+			Message: "Incorrect id",
+		}
+		jsn, _ := json.Marshal(answer)
+
+		w.Write(jsn)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	p, code := h.personaUsecase.Read(uint(id))
 
 	switch code {
 	case models.OKEY:
 		easyjson.MarshalToHTTPResponseWriter(p, w)
 	case models.NOTFOUND:
+		answer := models.Error{
+			Message: "Person not found",
+		}
+		jsn, _ := json.Marshal(answer)
+		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -67,13 +89,25 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 
 func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 
-	_, code := h.personaUsecase.ReadAll()
+	ps, code := h.personaUsecase.ReadAll()
 	switch code {
 	case models.OKEY:
-		w.WriteHeader(http.StatusOK)
+		jsn, _ := json.Marshal(ps)
+		w.Write(jsn)
 	case models.NOTFOUND:
+		answer := models.Error{
+			Message: "Person not found",
+		}
+		jsn, _ := json.Marshal(answer)
+		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
 	default:
+		answer := models.ErrorValidation{
+			Message: "Incorrect data",
+		}
+		js, _ := json.Marshal(answer)
+
+		w.Write(js)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -91,8 +125,13 @@ func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	switch code {
 	case models.OKEY:
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
+		answer := models.Error{
+			Message: "Person not found",
+		}
+		jsn, _ := json.Marshal(answer)
+		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -103,13 +142,25 @@ func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *PHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
-	id, _ := strconv.Atoi(ids)
+	id, err := strconv.Atoi(ids)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	code := h.personaUsecase.Delete(uint(id))
 
 	switch code {
 	case models.OKEY:
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
+		answer := models.Error{
+			Message: "Person not found",
+		}
+
+		jsn, _ := json.Marshal(answer)
+
+		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)

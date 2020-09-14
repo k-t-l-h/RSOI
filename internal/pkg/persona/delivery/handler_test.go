@@ -29,7 +29,7 @@ func TestPHandler_Create(t *testing.T) {
 		result   http.Response
 		status   int
 		expected models.PersonaRequest
-		times int
+		times    int
 	}
 
 	tests := []struct {
@@ -45,7 +45,7 @@ func TestPHandler_Create(t *testing.T) {
 					strings.NewReader(fmt.Sprintf(`{"name": "%s" }`, "name"))),
 				expected: models.PersonaRequest{Name: "name"},
 				status:   http.StatusCreated,
-				times: 1,
+				times:    1,
 			}},
 		{
 			name:   "json err",
@@ -55,7 +55,7 @@ func TestPHandler_Create(t *testing.T) {
 					strings.NewReader(fmt.Sprintf(`{"name": "%s" `, "name"))),
 				expected: models.PersonaRequest{Name: "name"},
 				status:   http.StatusBadRequest,
-				times: 0,
+				times:    0,
 			}},
 	}
 
@@ -67,7 +67,6 @@ func TestPHandler_Create(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			mockUsecase.EXPECT().Create(&tt.args.expected).Return(uint(0), models.OKEY).Times(tt.args.times)
-
 
 			h.Create(w, tt.args.r)
 
@@ -94,8 +93,8 @@ func TestPHandler_Read(t *testing.T) {
 		result   http.Response
 		status   int
 		expected models.PersonaRequest
-		times int
-		state int
+		times    int
+		state    int
 	}
 
 	tests := []struct {
@@ -110,8 +109,8 @@ func TestPHandler_Read(t *testing.T) {
 				r:        httptest.NewRequest("GET", "/person/0", nil),
 				expected: models.PersonaRequest{ID: 0},
 				status:   http.StatusOK,
-				times: 1,
-				state: models.OKEY,
+				times:    1,
+				state:    models.OKEY,
 			}},
 		{
 			name:   "read not found",
@@ -120,11 +119,9 @@ func TestPHandler_Read(t *testing.T) {
 				r:        httptest.NewRequest("GET", "/person/1", nil),
 				expected: models.PersonaRequest{ID: 1},
 				status:   http.StatusNotFound,
-				times: 1,
-				state: models.NOTFOUND,
+				times:    1,
+				state:    models.NOTFOUND,
 			}},
-
-
 	}
 
 	for _, tt := range tests {
@@ -169,7 +166,7 @@ func TestPHandler_ReadAll(t *testing.T) {
 		result   http.Response
 		status   int
 		expected []*models.PersonaResponse
-		state 	int
+		state    int
 	}
 
 	tests := []struct {
@@ -184,7 +181,7 @@ func TestPHandler_ReadAll(t *testing.T) {
 				r:        httptest.NewRequest("GET", "/persons", nil),
 				expected: []*models.PersonaResponse{{}, {}},
 				status:   http.StatusOK,
-				state: models.OKEY,
+				state:    models.OKEY,
 			}},
 		{
 			name:   "read all no users",
@@ -193,7 +190,7 @@ func TestPHandler_ReadAll(t *testing.T) {
 				r:        httptest.NewRequest("GET", "/persons", nil),
 				expected: []*models.PersonaResponse{},
 				status:   http.StatusNotFound,
-				state: models.NOTFOUND,
+				state:    models.NOTFOUND,
 			}},
 	}
 
@@ -234,9 +231,9 @@ func TestPHandler_Update(t *testing.T) {
 		result   http.Response
 		status   int
 		expected models.PersonaRequest
-		id 		uint
-		state int
-		times int
+		id       uint
+		state    int
+		times    int
 	}
 
 	tests := []struct {
@@ -248,25 +245,25 @@ func TestPHandler_Update(t *testing.T) {
 			name:   "simple update",
 			fields: fields{personaUsecase: mockUsecase},
 			args: args{
-				r:        httptest.NewRequest("PATCH", "/person/0",
+				r: httptest.NewRequest("PATCH", "/person/0",
 					strings.NewReader(fmt.Sprintf(`{"name": "%s" }`, "name"))),
-				id: 0,
+				id:       0,
 				expected: models.PersonaRequest{Name: "name"},
 				status:   http.StatusOK,
-				state: 	models.OKEY,
-				times: 1,
+				state:    models.OKEY,
+				times:    1,
 			}},
 		{
 			name:   "update not found",
 			fields: fields{personaUsecase: mockUsecase},
 			args: args{
-				r:        httptest.NewRequest("PATCH", "/person/5",
+				r: httptest.NewRequest("PATCH", "/person/5",
 					strings.NewReader(fmt.Sprintf(`{"name": "%s" }`, "name"))),
-				id: 5,
+				id:       5,
 				expected: models.PersonaRequest{Name: "name"},
 				status:   http.StatusNotFound,
-				state: 	models.NOTFOUND,
-				times: 1,
+				state:    models.NOTFOUND,
+				times:    1,
 			}},
 	}
 
@@ -311,7 +308,7 @@ func TestPHandler_Delete(t *testing.T) {
 		r        *http.Request
 		result   http.Response
 		status   int
-		state 	 int
+		state    int
 		expected models.PersonaRequest
 	}
 
@@ -327,16 +324,16 @@ func TestPHandler_Delete(t *testing.T) {
 				r:        r1,
 				expected: models.PersonaRequest{ID: 1},
 				status:   http.StatusOK,
-				state: models.OKEY,
+				state:    models.OKEY,
 			}},
 		{
 			name:   "delete not found",
 			fields: fields{personaUsecase: mockUsecase},
 			args: args{
-				r:       r2,
+				r:        r2,
 				expected: models.PersonaRequest{ID: 100},
 				status:   http.StatusNotFound,
-				state: models.NOTFOUND,
+				state:    models.NOTFOUND,
 			}},
 	}
 

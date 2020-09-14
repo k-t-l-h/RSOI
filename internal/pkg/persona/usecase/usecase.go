@@ -26,7 +26,8 @@ func (us *PUsecase) ReadAll() ([]*models.PersonaResponse, int) {
 }
 
 func (us *PUsecase) Update(id uint, persona *models.PersonaRequest) int {
-	return us.repo.Update(id, persona)
+	persona.ID = id
+	return us.repo.Update(persona)
 }
 
 func (us *PUsecase) Delete(id uint) int {

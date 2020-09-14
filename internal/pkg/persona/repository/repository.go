@@ -61,8 +61,7 @@ func (pr *PRepository) SelectAll() ([]*models.PersonaResponse, int) {
 	}
 }
 
-func (pr *PRepository) Update(id uint, persona *models.PersonaRequest) int {
-	persona.ID = id
+func (pr *PRepository) Update(persona *models.PersonaRequest) int {
 	tag, err := pr.pool.Exec(context.Background(), UPDATEPERSONA,
 		persona.Name, persona.Age, persona.Address, persona.Work, persona.ID)
 	if err != nil {

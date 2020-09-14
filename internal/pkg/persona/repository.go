@@ -6,6 +6,6 @@ type IRepository interface {
 	Insert(persona *models.PersonaRequest) (uint, int)
 	Select(id uint) (*models.PersonaResponse, int)
 	SelectAll() ([]*models.PersonaResponse, int)
-	Update(id uint, persona *models.PersonaRequest) int
+	Update(persona *models.PersonaRequest) int
 	Delete(id uint) int
 }
