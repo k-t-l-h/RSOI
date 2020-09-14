@@ -1,12 +1,16 @@
 FROM golang:1.14 AS builder
 
-ADD . /opt/app
+ENV GO111MODULE=on
+
 WORKDIR /opt/app
-RUN go build ./cmd/main.go
+COPY . .
+RUN go build cmd/main.go
 
-FROM ubuntu:20/04
+FROM ubuntu:latest
 
-RUN apt-get - y update && apt-get install -y tzdata
+RUN apt-get -y update && apt-get install -y tzdata
+
+ENV dbData "postgres://docker:docker@127.0.0.1:5432/docker?pool_max_conns=10"
 
 ENV TZ=Russina/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -18,10 +22,10 @@ RUN apt-get -y update && apt-get install -y postgresql-$PostgresVer
 
 USER postgres
 
-RUN /ect/init.d/postgresql start &&\
+RUN service postgresql start &&\
 psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
 createdb -O docker docker &&\
-/ect/init.d/postgresql stop
+service postgresql stop
 
 EXPOSE $PostgresPort
 
@@ -30,8 +34,9 @@ USER root
 WORKDIR /usr/src/app
 
 COPY . .
-COPY --from=build /opt/app/main .
+COPY --from=builder /opt/app/main .
 
 EXPOSE 5000
-ENV PGpassword docker
+ENV PGPASSWORD docker
+
 CMD service postgresql start && psql -h localhost -d docker -U docker -p $PostgresPort -a -q -f ./init.sql && ./main
