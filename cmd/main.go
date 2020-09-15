@@ -6,6 +6,7 @@ import (
 	"RSOI/internal/pkg/persona/repository"
 	"RSOI/internal/pkg/persona/usecase"
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
@@ -33,6 +34,13 @@ func main() {
 		log.Fatal("database connection not established")
 	}
 
+	port, ok := os.LookupEnv("PORT")
+
+	if ok == false {
+		port = "5000"
+	}
+
+
 	pr := repository.NewPRepository(*conn)
 	pu := usecase.NewPUsecase(pr)
 	pd := delivery.NewPHandler(pu)
@@ -45,10 +53,11 @@ func main() {
 	r.HandleFunc("/person", pd.Create).Methods("POST")
 	r.HandleFunc("/person/{personID}", pd.Update).Methods("PATCH")
 	r.HandleFunc("/person/{personID}", pd.Delete).Methods("DELETE")
+	http.Handle("/", r)
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":5000",
+		Addr:         fmt.Sprintf(":%s", port),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
