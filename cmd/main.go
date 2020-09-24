@@ -24,7 +24,7 @@ func init() {
 
 func main() {
 
-	connection, state := os.LookupEnv("process.env.DATABASE_URL")
+	connection, state := os.LookupEnv("DATABASE_URL")
 	if !state {
 		log.Print("connection string was not found")
 	}
