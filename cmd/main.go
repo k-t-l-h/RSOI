@@ -24,9 +24,9 @@ func init() {
 
 func main() {
 
-	connection, state := os.LookupEnv("process.env.DATABASE")
+	connection, state := os.LookupEnv("process.env.DATABASE_URL")
 	if !state {
-		log.Fatal("connection string was not found")
+		log.Print("connection string was not found")
 	}
 
 	conn, err := pgxpool.Connect(context.Background(), connection)
