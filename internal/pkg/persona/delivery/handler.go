@@ -31,6 +31,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 
 		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -40,7 +41,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 	switch code {
 	case models.OKEY:
 		w.Header().Set("Location",
-			fmt.Sprintf("https://rsoi-person-service.herokuapp.com/persons/%d", id))
+			fmt.Sprintf("https://persona-service.herokuapp.com/persons/%d", id))
 		w.WriteHeader(http.StatusCreated)
 	case models.NOTFOUND:
 		answer := models.Error{
@@ -49,6 +50,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -57,6 +59,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
+
 	id, err := strconv.Atoi(ids)
 	if err != nil {
 		answer := models.ErrorValidation{
@@ -66,6 +69,7 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(jsn)
 		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
 		return
 	}
 
@@ -81,6 +85,7 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -94,6 +99,8 @@ func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 	case models.OKEY:
 		jsn, _ := json.Marshal(ps)
 		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
 		answer := models.Error{
 			Message: "Person not found",
@@ -101,6 +108,7 @@ func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
 	default:
 		answer := models.ErrorValidation{
 			Message: "Incorrect data",
@@ -109,6 +117,7 @@ func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(js)
 		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
 	}
 }
 
@@ -133,6 +142,7 @@ func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -161,6 +171,7 @@ func (h *PHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		jsn, _ := json.Marshal(answer)
 
 		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
