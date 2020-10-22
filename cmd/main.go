@@ -40,7 +40,6 @@ func main() {
 		port = "5000"
 	}
 
-
 	pr := repository.NewPRepository(*conn)
 	pu := usecase.NewPUsecase(pr)
 	pd := delivery.NewPHandler(pu)
@@ -48,11 +47,11 @@ func main() {
 	r := mux.NewRouter()
 	r.Use(middleware.InternalServerError)
 
-	r.HandleFunc("/person/{personID}", pd.Read).Methods("GET")
+	r.HandleFunc("/persons/{personID}", pd.Read).Methods("GET")
 	r.HandleFunc("/persons", pd.ReadAll).Methods("GET")
-	r.HandleFunc("/person", pd.Create).Methods("POST")
-	r.HandleFunc("/person/{personID}", pd.Update).Methods("PATCH")
-	r.HandleFunc("/person/{personID}", pd.Delete).Methods("DELETE")
+	r.HandleFunc("/persons", pd.Create).Methods("POST")
+	r.HandleFunc("/persons/{personID}", pd.Update).Methods("PATCH")
+	r.HandleFunc("/persons/{personID}", pd.Delete).Methods("DELETE")
 	http.Handle("/", r)
 
 	srv := &http.Server{
@@ -66,4 +65,3 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 
 }
-

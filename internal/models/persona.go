@@ -1,5 +1,6 @@
 package models
 
+//todo: убрать теги
 type PersonaRequest struct {
 	ID      uint   `json:"id,omitempty" validate:""`
 	Name    string `json:"name"`

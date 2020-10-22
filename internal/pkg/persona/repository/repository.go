@@ -16,6 +16,7 @@ func NewPRepository(pl pgxpool.Pool) *PRepository {
 }
 
 func (pr *PRepository) Insert(persona *models.PersonaRequest) (uint, int) {
+
 	res := pr.pool.QueryRow(context.Background(), CREATEPERSONA,
 		persona.Name, persona.Age, persona.Address, persona.Work)
 	err := res.Scan(&persona.ID)
@@ -54,7 +55,7 @@ func (pr *PRepository) SelectAll() ([]*models.PersonaResponse, int) {
 		personas = append(personas, &persona)
 	}
 
-	if err != nil {
+	if err != nil || len(personas) == 0 {
 		return personas, models.NOTFOUND
 	} else {
 		return personas, models.OKEY

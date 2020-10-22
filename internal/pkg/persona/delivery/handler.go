@@ -24,14 +24,13 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 	person := &models.PersonaRequest{}
 	err := easyjson.UnmarshalFromReader(r.Body, person)
 	if err != nil {
-
 		answer := models.ErrorValidation{
 			Message: "Incorrect json",
 		}
 		jsn, _ := json.Marshal(answer)
-
-		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsn)
 		return
 	}
 
@@ -40,7 +39,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 	switch code {
 	case models.OKEY:
 		w.Header().Set("Location",
-			fmt.Sprintf("https://rsoi-person-service.herokuapp.com/persons/%d", id))
+			fmt.Sprintf("https://persona-service.herokuapp.com/persons/%d", id))
 		w.WriteHeader(http.StatusCreated)
 	case models.NOTFOUND:
 		answer := models.Error{
@@ -48,6 +47,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 		jsn, _ := json.Marshal(answer)
 		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
@@ -57,6 +57,7 @@ func (h *PHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 	v := mux.Vars(r)
 	ids := v["personID"]
+
 	id, err := strconv.Atoi(ids)
 	if err != nil {
 		answer := models.ErrorValidation{
@@ -64,8 +65,10 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 		}
 		jsn, _ := json.Marshal(answer)
 
-		w.Write(jsn)
+
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsn)
 		return
 	}
 
@@ -79,8 +82,9 @@ func (h *PHandler) Read(w http.ResponseWriter, r *http.Request) {
 			Message: "Person not found",
 		}
 		jsn, _ := json.Marshal(answer)
-		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
+		w.Write(jsn)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -92,23 +96,25 @@ func (h *PHandler) ReadAll(w http.ResponseWriter, r *http.Request) {
 	ps, code := h.personaUsecase.ReadAll()
 	switch code {
 	case models.OKEY:
-		jsn, _ := json.Marshal(ps)
-		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(ps)
+		//w.WriteHeader(http.StatusOK)
 	case models.NOTFOUND:
+		w.Header().Set("Content-Type", "application/json")
 		answer := models.Error{
 			Message: "Person not found",
 		}
 		jsn, _ := json.Marshal(answer)
-		w.Write(jsn)
 		w.WriteHeader(http.StatusNotFound)
+		w.Write(jsn)
 	default:
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		answer := models.ErrorValidation{
 			Message: "Incorrect data",
 		}
 		js, _ := json.Marshal(answer)
-
 		w.Write(js)
-		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 
@@ -131,8 +137,9 @@ func (h *PHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Message: "Person not found",
 		}
 		jsn, _ := json.Marshal(answer)
-		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
+		w.Write(jsn)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -160,8 +167,9 @@ func (h *PHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 		jsn, _ := json.Marshal(answer)
 
-		w.Write(jsn)
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
+		w.Write(jsn)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
